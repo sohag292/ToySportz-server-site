@@ -47,8 +47,8 @@ async function run() {
 
     })
  
-    //user
-    app.get('/mytoys',async(req,res)=>{
+   
+    app.get('/addToy',async(req,res)=>{
         const email=req.query.email;
         let query= {}
         if(req.query?.email){
@@ -74,7 +74,22 @@ async function run() {
         res.send(result)
     })
 
-    
+    app.put('/addToy/:id', async(req,res)=>{ 
+        const id = req.params.id;
+        const updateSports = req.body;
+        console.log(id, updateSports);
+        const filter = {_id: new ObjectId(id)}
+        const option ={upsert:true}
+        const Sports = {
+            $set:{
+                price: updateSports.price,
+                quantity:updateSports.quantity, 
+                description:updateSports.description, 
+            }
+        }
+        const result = await ToysCollection.updateOne(filter, Sports, option)
+        res.send(result)
+    });
 
 
 
