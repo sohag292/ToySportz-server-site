@@ -32,9 +32,6 @@ async function run() {
 
 
 
-
-
-        // search 
         const indexKey = {
             name: 1,
 
@@ -46,10 +43,8 @@ async function run() {
             const result = await ToysCollection
                 .find({ name: text })
                 .toArray();
-            console.log(result);
             res.send(result);
         });
-
 
 
         app.get('/toy', async (req, res) => {
@@ -58,7 +53,6 @@ async function run() {
             res.send(result);
 
         })
-
 
         app.get('/addToy/:id', async (req, res) => {
             const id = req.params.id;
@@ -70,7 +64,6 @@ async function run() {
 
 
         app.get('/addToy', async (req, res) => {
-            // const email=req.query.email;
             let query = {}
             if (req.query?.email) {
                 query = { sellerEmail: req.query.email }
@@ -80,7 +73,7 @@ async function run() {
         })
 
 
-        
+
         app.get('/addToy', async (req, res) => {
             let query = {};
             if (req.query?.email) {
