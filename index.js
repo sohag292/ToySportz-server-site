@@ -6,7 +6,13 @@ const app = express()
 const port = process.env.PORT || 2000;
 
 // middleware
-app.use(cors());
+const corsOptions ={
+    origin:'*', 
+    credentials:true,    
+    optionSuccessStatus:200,
+ }
+ 
+ app.use(cors(corsOptions))
 app.use(express.json());
 
 
@@ -26,33 +32,20 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+      
 
         const ToysCollection = client.db("ToySportzDB").collection("ToySport");
 
 
 
-        const indexKey = {
-            name: 1,
-
-        };
-        const indexOption = { name: "name" };
-        const result = await ToysCollection.createIndex(indexKey, indexOption)
-        app.get("/jobSearchName/:text", async (req, res) => {
-            const text = req.params.text;
-            const result = await ToysCollection
-                .find({ name: text })
-                .toArray();
+        app.get("/jobSearchName", async (req, res) => {
+            const search = req.query.search;
+            const query ={name:{$regex:search, $options: 'i'}}
+            const result = await ToysCollection.find(query).toArray();
             res.send(result);
-        });
+          });
+          
 
-
-        app.get('/toy', async (req, res) => {
-            const cursor = ToysCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-
-        })
 
         app.get('/addToy/:id', async (req, res) => {
             const id = req.params.id;
@@ -64,29 +57,20 @@ async function run() {
 
 
         app.get('/addToy', async (req, res) => {
+            const sort =req.query.sort;
             let query = {}
             if (req.query?.email) {
                 query = { sellerEmail: req.query.email }
             }
-            const result = await ToysCollection.find(query).limit(20).toArray();
+            const options ={
+                sort:{
+                    "price": sort ==='asc'? 1: -1
+                }
+            }
+            const result = await ToysCollection.find(query,options).toArray();
             res.send(result)
         })
 
-
-
-        app.get('/addToy', async (req, res) => {
-            let query = {};
-            if (req.query?.email) {
-                query = { sellerEmail: req.query.email };
-            }
-
-            const sortParam = req.query?.sort === 'asen' ? 1 : -1;
-            const result = await ToysCollection.find(query)
-                .sort({ price: sortParam })
-                .limit(20)
-                .toArray();
-            res.send(result);
-        });
 
 
         app.post('/addToy', async (req, res) => {
